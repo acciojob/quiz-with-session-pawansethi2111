@@ -1,17 +1,84 @@
 <!DOCTYPE html>
-
-<html>
-  <head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
     <link rel="stylesheet" href="styles.css" />
-  </head>
-
-  <body>
-    <!-- do not change this code -->
+    <script defer src="script.js"></script>
+</head>
+<body>
     <h1>Quiz</h1>
     <div id="questions"></div>
     <button id="submit">Submit</button>
     <div id="score"></div>
 
-    <script type="text/javascript" src="./script.js"></script>
-  </body>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const questions = [
+                { question: "What is the capital of France?", choices: ["Paris", "London", "Berlin", "Madrid"], answer: "Paris" },
+                { question: "What is the highest mountain in the world?", choices: ["Everest", "Kilimanjaro", "Denali", "Matterhorn"], answer: "Everest" },
+                { question: "What is the largest country by area?", choices: ["Russia", "China", "Canada", "United States"], answer: "Russia" },
+                { question: "Which is the largest planet in our solar system?", choices: ["Earth", "Jupiter", "Mars", "Saturn"], answer: "Jupiter" },
+                { question: "What is the capital of Canada?", choices: ["Toronto", "Montreal", "Vancouver", "Ottawa"], answer: "Ottawa" }
+            ];
+
+            const questionsContainer = document.getElementById("questions");
+            const submitButton = document.getElementById("submit");
+            const scoreDisplay = document.getElementById("score");
+            const progress = JSON.parse(sessionStorage.getItem("progress")) || {};
+
+            function saveProgress() {
+                sessionStorage.setItem("progress", JSON.stringify(progress));
+            }
+
+            function saveScore(score) {
+                localStorage.setItem("score", score);
+            }
+
+            function loadScore() {
+                return localStorage.getItem("score") || "No previous score";
+            }
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.innerHTML = `<p>${q.question}</p>`;
+                
+                q.choices.forEach(choice => {
+                    const label = document.createElement("label");
+                    const input = document.createElement("input");
+                    input.type = "radio";
+                    input.name = `question${index}`;
+                    input.value = choice;
+                    if (progress[index] === choice) input.checked = true;
+                    
+                    input.addEventListener("change", () => {
+                        progress[index] = choice;
+                        saveProgress();
+                    });
+                    
+                    label.appendChild(input);
+                    label.append(choice);
+                    questionDiv.appendChild(label);
+                    questionDiv.appendChild(document.createElement("br"));
+                });
+                
+                questionsContainer.appendChild(questionDiv);
+            });
+
+            submitButton.addEventListener("click", () => {
+                let score = 0;
+                questions.forEach((q, index) => {
+                    if (progress[index] === q.answer) {
+                        score++;
+                    }
+                });
+                scoreDisplay.innerText = `Your score is ${score} out of 5.`;
+                saveScore(score);
+            });
+
+            scoreDisplay.innerText = `Last Score: ${loadScore()}`;
+        });
+    </script>
+</body>
 </html>
